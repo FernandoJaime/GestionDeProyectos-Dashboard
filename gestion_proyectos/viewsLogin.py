@@ -11,14 +11,14 @@ from .models import Empleado
 # Login - auntenticación y devolución de token JWT
 @api_view(['POST'])
 def login(request):
-    
+    print(request.data)
     serializer = LoginSerializer(data=request.data)
-    
+    print(serializer)
     if serializer.is_valid():
         email_empleado = serializer.validated_data['email_empleado']
         pass_hash = serializer.validated_data['pass_hash']
-
         try:
+            print(email_empleado)
             empleado = Empleado.objects.get(email_empleado=email_empleado)
 
             if empleado.debaja:

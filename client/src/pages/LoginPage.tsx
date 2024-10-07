@@ -1,26 +1,21 @@
-import { useState } from "react" // Hook de react para manejar estados de componentes
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import axios from 'axios';
+import { useState } from 'react';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { loginEmpleado } from '../api';
 
 export function LoginPage() {
-    
-    // Estados para manejar los valores de los campos de correo y contraseña
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
 
-    // Función para manejar el envío del formulario
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         
         setError(""); // Limpiar errores anteriores al enviar el formulario
     
-        // Validar campos vacíos
         if (!email || !password) {
             setError("Por favor, rellena todos los campos");
             return;
@@ -29,25 +24,14 @@ export function LoginPage() {
         try {
             const response = await loginEmpleado(email, password);
     
-            // Validar si la respuesta indica éxito
             if (response.success) {
-                // Redirigir a la página de dashboard
                 window.location.href = '/dashboard';
             } else {
-                // Mostrar mensaje de error
                 setError('Credenciales incorrectas');
             }
         } catch (error) {
-            // Mostrar mensaje de error detallado si la solicitud falla
-            if (axios.isAxiosError(error)) {
-                setError(error.response?.data?.message || 'Error en la solicitud');
-            } else {
-                setError('Error en la solicitud');
-            }
+            setError('Error en la solicitud');
         }
-    
-        // Imprimir en consola los detalles del intento de inicio de sesión
-        console.log("Intento de inicio de sesión con:", { email, password });
     };
 
     return (
