@@ -86,7 +86,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'DB_Dashboard',  # Nombre de tu base de datos
         'USER': 'root',     # Tu usuario de MySQL
-        'PASSWORD': 'MyFer-SQL25(05)', # Tu contraseña de MySQL
+        'PASSWORD': 'mysql', # Tu contraseña de MySQL
         'HOST': 'localhost',       # Si es remoto, la IP del servidor.
         'PORT': '3306',            # Puerto de MySQL, por defecto es 3306
     }
@@ -135,7 +135,9 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Defino quienes pueden acceder a mi API (cors authorization)
-CORS_ALLOWED_ORIGINS = []
+CORS_ALLOWED_ORIGINS = [
+        "http://localhost:3000",  # React development server
+]
 
 # Definiciones de REST Framework
 REST_FRAMEWORK = {

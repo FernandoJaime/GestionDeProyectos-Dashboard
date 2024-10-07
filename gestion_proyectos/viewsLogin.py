@@ -38,6 +38,7 @@ def login(request):
             
             # Crea la respuesta
             response = Response({
+                'success': True,
                 'cod_empleado': empleado.cod_empleado,
                 'nom_empleado': empleado.nom_empleado,
                 'ape_empleado': empleado.ape_empleado,
