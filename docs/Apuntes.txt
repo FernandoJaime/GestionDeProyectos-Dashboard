@@ -1,0 +1,92 @@
+____________________________________________________________
+
+INICIAR PROYECTO
+
+Back -->
+
+Python -m venv venv 
+Source venv/Scripts/activate
+Pip install -r requierements.txt
+python manage.py migrate --fake
+Python manage.py runserver
+
+Front --> 
+
+cd client 
+npm install 
+npm run dev
+____________________________________________________________
+
+EMPLEADOS PARA CARGAR
+
+{
+    "cod_empleado": 1,
+    "nom_empleado": "Fernando",
+    "ape_empleado": "Jaime",
+    "fecha_nacimiento": "2002-09-11",
+    "email_empleado": "admin@dashboard.com",
+    "pass_hash": "ContraseñaAdmin105",
+    "tel_empleado": 1234567892,
+    "direc_empleado": "Calle del admin 123",
+    "cod_departamento": 7
+}
+{
+    "cod_empleado": 2,
+    "nom_empleado": "Rodrigo",
+    "ape_empleado": "James",
+    "fecha_nacimiento": "1900-11-30",
+    "email_empleado": "Empleado02@dashboard.com",
+    "pass_hash": "ContraseñaEmp02",
+    "tel_empleado": "5555555555",
+    "direc_empleado": "Calle del emp 02",
+    "cod_departamento": 3
+}
+{
+    "cod_empleado": 3,
+    "nom_empleado": "Marcos",
+    "ape_empleado": "Perez",
+    "fecha_nacimiento": "2002-11-30",
+    "email_empleado": "Empleado03@dashboard.com",
+    "pass_hash": "ContraseñaEmp03",
+    "tel_empleado": "222222222",
+    "direc_empleado": "Calle del emp 03",
+    "cod_departamento": 4
+}
+{
+    "cod_empleado": 4,
+    "nom_empleado":"Fernando",
+    "ape_empleado": "Jaime",
+    "fecha_nacimiento": "2000-02-10",
+    "email_empleado": "dashadmin@admin.com",
+    "pass_hash": "Admin12345",
+    "tel_empleado": 23459763,
+    "direc_empleado": "San Vicente",
+    "cod_departamento": 5
+}
+{
+    "cod_empleado": 5,
+    "nom_empleado": "Juan",
+    "ape_empleado": "Pablo",
+    "fecha_nacimiento": "1999-02-15",
+    "email_empleado": "dashempleado@dash.com",
+    "pass_hash": "Empleado123",
+    "tel_empleado": "23459763",
+    "direc_empleado": "Rosario",
+    "cod_departamento": 3
+}
+_____________________________________________________________
+
+IMPLEMENTACION DE DRILL DOWN-UP 
+
+Nivel 1: Clientes
+- Listar todos los clientes.
+- Seleccionar un cliente para ver sus proyectos.
+
+Nivel 2: Proyectos
+- Ver los proyectos relacionados con el cliente seleccionado.
+- Seleccionar un proyecto para ver sus tareas.
+
+Nivel 3: Tareas
+- Ver las tareas asociadas con el proyecto seleccionado.
+- Seleccionar una tarea para ver detalles adicionales (como empleados asignados, duración, etc.)
+_____________________________________________________________
