@@ -35,7 +35,7 @@ EMPLEADOS PARA CARGAR
     "nom_empleado": "Rodrigo",
     "ape_empleado": "James",
     "fecha_nacimiento": "1900-11-30",
-    "email_empleado": "Empleado02@dashboard.com",
+    "email_empleado": "Emp02@dashboard.com",
     "pass_hash": "ContraseñaEmp02",
     "tel_empleado": "5555555555",
     "direc_empleado": "Calle del emp 02",
@@ -43,36 +43,113 @@ EMPLEADOS PARA CARGAR
 }
 {
     "cod_empleado": 3,
-    "nom_empleado": "Marcos",
-    "ape_empleado": "Perez",
-    "fecha_nacimiento": "2002-11-30",
-    "email_empleado": "Empleado03@dashboard.com",
+    "nom_empleado": "Carolina",
+    "ape_empleado": "Martínez",
+    "fecha_nacimiento": "1990-05-12",
+    "email_empleado": "Emp03@dashboard.com",
     "pass_hash": "ContraseñaEmp03",
-    "tel_empleado": "222222222",
+    "tel_empleado": "5555555556",
     "direc_empleado": "Calle del emp 03",
-    "cod_departamento": 4
+    "cod_departamento": 1
 }
 {
     "cod_empleado": 4,
-    "nom_empleado":"Fernando",
-    "ape_empleado": "Jaime",
-    "fecha_nacimiento": "2000-02-10",
-    "email_empleado": "dashadmin@admin.com",
-    "pass_hash": "Admin12345",
-    "tel_empleado": 23459763,
-    "direc_empleado": "San Vicente",
-    "cod_departamento": 5
+    "nom_empleado": "Miguel",
+    "ape_empleado": "Fernández",
+    "fecha_nacimiento": "1985-08-20",
+    "email_empleado": "Emp04@dashboard.com",
+    "pass_hash": "ContraseñaEmp04",
+    "tel_empleado": "5555555557",
+    "direc_empleado": "Calle del emp 04",
+    "cod_departamento": 2
 }
 {
     "cod_empleado": 5,
-    "nom_empleado": "Juan",
-    "ape_empleado": "Pablo",
-    "fecha_nacimiento": "1999-02-15",
-    "email_empleado": "dashempleado@dash.com",
-    "pass_hash": "Empleado123",
-    "tel_empleado": "23459763",
-    "direc_empleado": "Rosario",
+    "nom_empleado": "Lucía",
+    "ape_empleado": "García",
+    "fecha_nacimiento": "1978-03-15",
+    "email_empleado": "Emp05@dashboard.com",
+    "pass_hash": "ContraseñaEmp05",
+    "tel_empleado": "5555555558",
+    "direc_empleado": "Calle del emp 05",
     "cod_departamento": 3
+}
+{
+    "cod_empleado": 6,
+    "nom_empleado": "Javier",
+    "ape_empleado": "López",
+    "fecha_nacimiento": "1992-09-25",
+    "email_empleado": "Emp06@dashboard.com",
+    "pass_hash": "ContraseñaEmp06",
+    "tel_empleado": "5555555559",
+    "direc_empleado": "Calle del emp 06",
+    "cod_departamento": 4
+}
+{
+    "cod_empleado": 7,
+    "nom_empleado": "Ana",
+    "ape_empleado": "Torres",
+    "fecha_nacimiento": "1988-12-10",
+    "email_empleado": "Emp07@dashboard.com",
+    "pass_hash": "ContraseñaEmp07",
+    "tel_empleado": "5555555560",
+    "direc_empleado": "Calle del emp 07",
+    "cod_departamento": 1
+}
+{
+    "cod_empleado": 8,
+    "nom_empleado": "Pablo",
+    "ape_empleado": "González",
+    "fecha_nacimiento": "1980-06-05",
+    "email_empleado": "Emp08@dashboard.com",
+    "pass_hash": "ContraseñaEmp08",
+    "tel_empleado": "5555555561",
+    "direc_empleado": "Calle del emp 08",
+    "cod_departamento": 2
+}
+{
+    "cod_empleado": 9,
+    "nom_empleado": "Laura",
+    "ape_empleado": "Hernández",
+    "fecha_nacimiento": "1995-02-17",
+    "email_empleado": "Emp09@dashboard.com",
+    "pass_hash": "ContraseñaEmp09",
+    "tel_empleado": "5555555562",
+    "direc_empleado": "Calle del emp 09",
+    "cod_departamento": 3
+}
+{
+    "cod_empleado": 10,
+    "nom_empleado": "Sergio",
+    "ape_empleado": "Ramírez",
+    "fecha_nacimiento": "1998-11-22",
+    "email_empleado": "Emp10@dashboard.com",
+    "pass_hash": "ContraseñaEmp10",
+    "tel_empleado": "5555555563",
+    "direc_empleado": "Calle del emp 10",
+    "cod_departamento": 4
+}
+{
+    "cod_empleado": 11,
+    "nom_empleado": "Patricia",
+    "ape_empleado": "Vargas",
+    "fecha_nacimiento": "1982-04-30",
+    "email_empleado": "Emp11@dashboard.com",
+    "pass_hash": "ContraseñaEmp11",
+    "tel_empleado": "5555555564",
+    "direc_empleado": "Calle del emp 11",
+    "cod_departamento": 1
+}
+{
+    "cod_empleado": 12,
+    "nom_empleado": "Diego",
+    "ape_empleado": "Morales",
+    "fecha_nacimiento": "1975-07-07",
+    "email_empleado": "Emp12@dashboard.com",
+    "pass_hash": "ContraseñaEmp12",
+    "tel_empleado": "5555555565",
+    "direc_empleado": "Calle del emp 12",
+    "cod_departamento": 2
 }
 _____________________________________________________________
 
