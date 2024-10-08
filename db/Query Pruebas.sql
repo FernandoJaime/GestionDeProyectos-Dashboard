@@ -4,7 +4,7 @@ SELECT * FROM db_dashboard.roles;
 delete from Empleados where cod_empleado = 1;
 
 use db_dashboard
-update Empleados set debaja = 1 where cod_empleado = 3
+update Empleados set cod_rol = 1 where cod_empleado = 2
 update Roles set nom_rol = 'Empleado' where cod_rol = 2
 
 call sp_ObtenerEmpleados()
