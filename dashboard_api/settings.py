@@ -90,7 +90,7 @@ DATABASES = {
         'HOST': 'localhost',       # Si es remoto, la IP del servidor.
         'PORT': '3306',            # Puerto de MySQL, por defecto es 3306
     }
-}
+} 
 
 
 # Password validation
