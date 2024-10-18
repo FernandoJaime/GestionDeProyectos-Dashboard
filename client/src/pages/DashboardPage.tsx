@@ -1,5 +1,7 @@
 import { useState } from 'react' // Hook de react para manejar estados de componentes
 
+import { Link } from 'react-router-dom';  // Importa Link para manejar la navegación
+
 import { Layout, Users, Network, SquareCheckBig, CircleUserRound} from 'lucide-react'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,9 +10,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { LineChart, Line, BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell } from 'recharts'
 
 const sidebarItems = [
-  { icon: Layout, label: 'Dashboard' },
-  { icon: Users, label: 'Clientes' },
-  { icon: Network, label: 'Departamentos' },
+  { icon: Layout, label: 'Dashboard', path: '/dashboard'}, // path se usa para navegar a la ruta correspondiente
+  { icon: Users, label: 'Clientes', path: '/clientes'},
+  { icon: Network, label: 'Departamentos', path: '/departamentos'},
   { icon: SquareCheckBig, label: 'Tareas' },
 ] // Array de objetos con los íconos y etiquetas de los elementos del menú lateral
 
@@ -75,17 +77,31 @@ export function DashboardPage() {
         
         {/* Mapeamos los elementos de arriba y generamos botones. El botón seleccionado se resalta con un fondo más oscuro */}
         <nav className="mt-4">
-          {sidebarItems.map((item) => (
-            <button
-              key={item.label}
-              className={`flex items-center w-full px-4 py-2 text-left ${
-                activeItem === item.label ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white'
-              }`}
-              onClick={() => setActiveItem(item.label)}
-            >
-              <item.icon className="w-5 h-5 mr-3" />
-              {item.label}
-            </button>
+          {sidebarItems.map((item) => ( // Solo agrega el Link si el elemento tiene un 'path'
+            item.path ? (
+              <Link to={item.path} key={item.label}>
+                <button
+                  className={`flex items-center w-full px-4 py-2 text-left ${
+                    activeItem === item.label ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white'
+                  }`}
+                  onClick={() => setActiveItem(item.label)}
+                >
+                  <item.icon className="w-5 h-5 mr-3" />
+                  {item.label}
+                </button>
+              </Link>
+            ) : ( // Si no tiene 'path', solo renderizo el boton sin link
+              <button
+                key={item.label}
+                className={`flex items-center w-full px-4 py-2 text-left ${
+                  activeItem === item.label ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white'
+                }`}
+                onClick={() => setActiveItem(item.label)}
+              >
+                <item.icon className="w-5 h-5 mr-3" />
+                {item.label}
+              </button>
+            )
           ))}
         </nav>
 
