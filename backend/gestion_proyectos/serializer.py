@@ -11,6 +11,7 @@ class EmpleadosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Empleado
         fields = (
+              'cod_empleado',
               'nom_empleado',
               'ape_empleado',
               'fecha_nacimiento',
@@ -18,6 +19,5 @@ class EmpleadosSerializer(serializers.ModelSerializer):
               'tel_empleado',
               'direc_empleado',
               'fecha_creacion',
-              'debaja',
               'cod_departamento'
             )

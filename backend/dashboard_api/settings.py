@@ -134,6 +134,8 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+CORS_ALLOW_CREDENTIALS = True
+
 # Defino quienes pueden acceder a mi API (cors authorization)
 CORS_ALLOWED_ORIGINS = [
         "http://localhost:3000",  # React development server

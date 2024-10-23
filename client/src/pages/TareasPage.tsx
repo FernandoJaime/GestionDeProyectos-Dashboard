@@ -3,7 +3,7 @@ import { Link, useLocation} from 'react-router-dom'
 import { Layout, Users, Network, CircleUserRound, FolderGit2 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts"
 import { getEmpleadoData } from '../api'; 
 
 const sidebarItems = [
@@ -20,17 +20,14 @@ const activeProjects = [
   { nombre: 'Proyecto C', fechaInicio: '2023-03-10', fechaEntrega: '2023-07-15', situacion: 'A tiempo', cliente: 'Cliente Z', estado: 'Activo', costo: '$60,000' },
 ]
 
-const userActivityData = [
-  { name: 'Mon', active: 3000, new: 1400 },
-  { name: 'Tue', active: 3500, new: 1200 },
-  { name: 'Wed', active: 4000, new: 1600 },
-  { name: 'Thu', active: 3700, new: 1300 },
-  { name: 'Fri', active: 3900, new: 1500 },
-  { name: 'Sat', active: 3300, new: 1000 },
-  { name: 'Sun', active: 3000, new: 900 },
+const projectStatusData = [
+    { name: 'Completed', value: 30 },
+    { name: 'In Progress', value: 45 },
+    { name: 'Pending', value: 25 },
 ]
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
 
-export function DepartamentosPage() {
+export function TareasPage() {
     const location = useLocation(); // Obtenemos la ruta actual para resaltar el elemento activo de la barra lateral
     const [activeItem, setActiveItem] = useState<string>("");
     const [employee, setEmployee] = useState<any>(null);
@@ -126,22 +123,40 @@ export function DepartamentosPage() {
 
         <main className="flex-1 overflow-y-auto p-6 bg-gray-900">
           <div className="mb-6">
-            <Card className="bg-gray-800 border-gray-700">
+          <Card className="bg-gray-800 border-gray-700">
               <CardHeader>
-                <CardTitle className="text-white">User Activity</CardTitle>
-                <CardDescription className="text-gray-400">Weekly active and new users</CardDescription>
+                <CardTitle className="text-white">Estado de Proyectos</CardTitle>
+                <CardDescription className="text-gray-400">Distribución de estados de proyectos</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={400}>
-                  <RechartsBarChart data={userActivityData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#4B5563" />
-                    <XAxis dataKey="name" stroke="#9CA3AF" />
-                    <YAxis stroke="#9CA3AF" />
-                    <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none', color: '#F3F4F6', borderRadius: '8px' }} />
-                    <Legend />
-                    <Bar dataKey="active" fill="#3B82F6" />
-                    <Bar dataKey="new" fill="#10B981" />
-                  </RechartsBarChart>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={projectStatusData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      outerRadius={100}
+                      fill="#8884d8"
+                      dataKey="value"
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    >
+                      {projectStatusData.map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip  // Configuración del tooltip del grafico
+                      contentStyle={{ 
+                        backgroundColor: '#1F2937', 
+                        border: 'none', 
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                      }}
+                      // Segun el color del fondo, configuro el color del texto
+                      itemStyle={{ color: '#F3F4F6' }}  // Esto cambia el color del texto a blanco
+                      labelStyle={{ color: '#F3F4F6' }} // Esto cambia el color del título del tooltip a blanco
+                    />
+                  </PieChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>

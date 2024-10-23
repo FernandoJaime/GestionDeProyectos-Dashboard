@@ -11,18 +11,18 @@ from .models import Empleado
 # Login - auntenticación y devolución de token JWT
 @api_view(['POST'])
 def login(request):
-    print(request.data)
+    #print(request.data)
     serializer = LoginSerializer(data=request.data)
-    print(serializer)
+    #print(serializer)
     if serializer.is_valid():
         email_empleado = serializer.validated_data['email_empleado']
         pass_hash = serializer.validated_data['pass_hash']
         try:
-            print(email_empleado)
+            #print(email_empleado)
             empleado = Empleado.objects.get(email_empleado=email_empleado)
 
             if empleado.debaja:
-                return Response({'error': 'El empleado está de baja'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': 'Empleado dado de baja'}, status=status.HTTP_400_BAD_REQUEST)
             
             # Verificacion de contraseña
             if not bcrypt.checkpw(pass_hash.encode('utf-8'), empleado.pass_hash.encode('utf-8')):
@@ -43,15 +43,17 @@ def login(request):
                 'nom_empleado': empleado.nom_empleado,
                 'ape_empleado': empleado.ape_empleado,
                 'email_empleado': empleado.email_empleado,
+                'rol': empleado.cod_rol.nom_rol,
+                'access_token': str(refresh.access_token)
             })
 
             # Establece el token en una cookie
-            response.set_cookie('access_token', str(refresh.access_token), httponly=True)
+            response.set_cookie('access_token', str(refresh.access_token), httponly=True, samesite='None')
 
             return response
         
         except Empleado.DoesNotExist: # Si no existe el empleado
-            return Response({'error': 'Empleado incorrecto'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Email de empleado incorrecto'}, status=status.HTTP_400_BAD_REQUEST)
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

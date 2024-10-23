@@ -23,14 +23,28 @@ export function LoginPage() {
     
         try {
             const response = await loginEmpleado(email, password);
-    
+            console.log(response);
             if (response.success) {
-                window.location.href = '/dashboard';
+                const role = response.rol; // Obtener el rol del empleado desde la respuesta
+                const code = response.cod_empleado; // Obtener el código del empleado desde la respuesta
+
+                // Guardar la información en localStorage
+                localStorage.setItem('code', JSON.stringify(code));
+
+                // Redirigir al usuario dependiendo del rol
+                if (role === 'Administrador') {
+                    window.location.href = '/dashboard';
+                } else if (role === 'Empleado') {
+                    window.location.href = '/empleado';
+                } else {
+                    setError('Rol no autorizado');
+                }
+                
             } else {
                 setError('Credenciales incorrectas');
             }
-        } catch (error) {
-            setError('Error en la solicitud');
+        } catch (error: any) {
+            setError(error.message || 'Error en la solicitud');
         }
     };
 

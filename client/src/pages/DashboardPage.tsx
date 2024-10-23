@@ -1,68 +1,114 @@
-import { useState } from 'react' // Hook de react para manejar estados de componentes
+import { useState, useEffect } from 'react' // Hook de react para manejar estados de componentes
 
-import { Link } from 'react-router-dom';  // Importa Link para manejar la navegación
+import { Link, useLocation } from 'react-router-dom';  // Importa Link para manejar la navegación
 
-import { Layout, Users, Network, SquareCheckBig, CircleUserRound} from 'lucide-react'
+import { Layout, Users, Network, FolderGit2, CircleUserRound, CheckCircle, Clock, XCircle, AlertCircle, ThumbsUp} from 'lucide-react'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
-import { LineChart, Line, BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell } from 'recharts'
+import { LineChart, Line, BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer} from 'recharts'
+import { getProyectosEnProceso, getClientesPrincipales, getProyectosEstadoGanancia, getProyectosIniciados, getEmpleadoData } from '../api';  // Importar la nueva función
 
 const sidebarItems = [
   { icon: Layout, label: 'Dashboard', path: '/dashboard'}, // path se usa para navegar a la ruta correspondiente
+  { icon: FolderGit2, label: 'Proyectos', path: '/proyectos'},
   { icon: Users, label: 'Clientes', path: '/clientes'},
-  { icon: Network, label: 'Departamentos', path: '/departamentos'},
-  { icon: SquareCheckBig, label: 'Tareas' },
+  { icon: Network, label: 'Departamentos', path: '/departamentos'}
 ] // Array de objetos con los íconos y etiquetas de los elementos del menú lateral
-
-const activeProjects = [
-  { nombre: 'Proyecto A', fechaInicio: '2023-01-15', fechaEntrega: '2023-06-30', situacion: 'En progreso', cliente: 'Cliente X', estado: 'Activo', costo: '$50,000' },
-  { nombre: 'Proyecto B', fechaInicio: '2023-02-01', fechaEntrega: '2023-08-31', situacion: 'Retrasado', cliente: 'Cliente Y', estado: 'Activo', costo: '$75,000' },
-  { nombre: 'Proyecto C', fechaInicio: '2023-03-10', fechaEntrega: '2023-07-15', situacion: 'A tiempo', cliente: 'Cliente Z', estado: 'Activo', costo: '$60,000' },
-] // Array de objetos con información de proyectos activos
-
-const mainClients = [
-  { codigo: 'CLT001', nombre: 'Empresa ABC', email: 'contacto@abc.com', telefono: '+1234567890', direccion: 'Calle Principal 123, Ciudad' },
-  { codigo: 'CLT002', nombre: 'Corporación XYZ', email: 'info@xyz.com', telefono: '+0987654321', direccion: 'Avenida Central 456, Metrópolis' },
-  { codigo: 'CLT003', nombre: 'Industrias 123', email: 'ventas@123.com', telefono: '+1122334455', direccion: 'Plaza Mayor 789, Villa' },
-] // Array de objetos con información de clientes principales
-
-const salesData = [
-  { name: 'Jan', sales: 4000 },
-  { name: 'Feb', sales: 3000 },
-  { name: 'Mar', sales: 5000 },
-  { name: 'Apr', sales: 4500 },
-  { name: 'May', sales: 6000 },
-  { name: 'Jun', sales: 5500 },
-] // Datos de ventas mensuales, usados para el gráfico de líneas que muestra el rendimiento de ventas
-
-const userActivityData = [
-  { name: 'Mon', active: 3000, new: 1400 },
-  { name: 'Tue', active: 3500, new: 1200 },
-  { name: 'Wed', active: 4000, new: 1600 },
-  { name: 'Thu', active: 3700, new: 1300 },
-  { name: 'Fri', active: 3900, new: 1500 },
-  { name: 'Sat', active: 3300, new: 1000 },
-  { name: 'Sun', active: 3000, new: 900 },
-] // Datos de actividad del usuario durante la semana, que se mostrarán en un gráfico de barras
-
-const userLogin = [
-  { Icon: CircleUserRound, name: 'John Doe'},
-] // Datos de inicio de sesión del usuario
-
-const projectStatusData = [
-  { name: 'Completed', value: 30 },
-  { name: 'In Progress', value: 45 },
-  { name: 'Pending', value: 25 },
-] // Estado de los proyectos en forma de porcentaje, usado para el gráfico torta
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'] // Array de colores para los segmentos del gráfico torta
 
 export function DashboardPage() {
 
   // Este estado determina qué elemento de la barra lateral está seleccionado
-  const [activeItem, setActiveItem] = useState('Dashboard')
+  const location = useLocation(); // Obtenemos la ruta actual para resaltar el elemento activo de la barra lateral
+  const [activeItem, setActiveItem] = useState<string>("");
+  const [employee, setEmployee] = useState<any>(null);
+
+  const [proyectos, setProyectos] = useState<any[]>([]);
+  const [clientes, setClientes] = useState<any[]>([]);
+  const [proyectosEstadoGanancia, setProyectosEstadoGanancia] = useState<any[]>([]);
+  const [proyectosIniciados, setProyectosIniciados] = useState<any[]>([]);
+  const [error, setError] = useState<string>("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+
+        const codEmpleado = localStorage.getItem('code');
+        if (codEmpleado) {
+          const codEmpleadoNumber = Number(codEmpleado);
+          const empleadoData = await getEmpleadoData(codEmpleadoNumber);
+          setEmployee(empleadoData);
+        } else {
+          setError("No se encontró el código del empleado.");
+        }
+
+        const proyectosData = await getProyectosEnProceso();
+        const clientesData = await getClientesPrincipales();
+        const proyectosEstadoGananciaData = await getProyectosEstadoGanancia();
+        const proyectosIniciadosData = await getProyectosIniciados();
+        setProyectos(proyectosData);
+        setClientes(clientesData);
+
+        const ChartData = proyectosEstadoGananciaData.map((proyecto: any) => ({
+          name: proyecto.estado,
+          cantidad: proyecto.cantidad,
+          ganancia: proyecto.ganancia,
+        }));
+        setProyectosEstadoGanancia(ChartData);
+
+        const ChartData2 = proyectosIniciadosData.map((proyecto: any) => ({
+          name: proyecto.mes,
+          cantidad: proyecto.cantidad
+        }));
+        setProyectosIniciados(ChartData2);
+
+      } catch (error) {
+        setError("Error al obtener los datos.");
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+   // Verifico que 'employee' no sea null
+   const userLogin = employee
+   ? [
+       {
+         Icon: CircleUserRound,
+         name: `${employee.nom_empleado} ${employee.ape_empleado}`,
+       },
+     ]
+   : []; // Si es null devuelvo un array vacío
+
+  const getEstadoInfo = (estado: string) => {
+    switch (estado) {
+      case "Completado":
+        return { color: "text-green-500", icon: <CheckCircle className="w-5 h-5" /> };
+      case "Pendiente":
+        return { color: "text-blue-500", icon: <AlertCircle className="w-5 h-5" /> };
+      case "Cancelado":
+        return { color: "text-red-500", icon: <XCircle className="w-5 h-5" /> };
+      default:
+        return { color: "text-yellow-300", icon: <Clock className="w-5 h-5" /> };
+    }
+  };
+
+  const getTiempoInfo = (tiempo: string) => {
+    switch (tiempo) {
+      case "Entregado":
+        return { colorTiempo: "text-blue-500", iconTiempo: <CheckCircle className="w-5 h-5" /> };
+      case "Atrasado":
+        return { colorTiempo: "text-red-500", iconTiempo: <XCircle className="w-5 h-5" /> };
+      default:
+        return { colorTiempo: "text-green-500", iconTiempo: <ThumbsUp className="w-5 h-5" /> };
+    }
+  };
 
   return (
 
@@ -82,7 +128,9 @@ export function DashboardPage() {
               <Link to={item.path} key={item.label}>
                 <button
                   className={`flex items-center w-full px-4 py-2 text-left ${
-                    activeItem === item.label ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white'
+                    location.pathname === item.path // Comparamos con la ruta actual
+                                    ? 'bg-gray-700 text-white' // Si coincide con la ruta actual, lo resaltamos
+                                    : 'text-gray-400 hover:bg-gray-700 hover:text-white'
                   }`}
                   onClick={() => setActiveItem(item.label)}
                 >
@@ -132,100 +180,79 @@ export function DashboardPage() {
         <main className="flex-1 overflow-y-auto p-6 bg-gray-900">
 
           {/* Disposición en cuadrícula con tres columnas (los 3 graficos pongo aca) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             
-            {/* Tarjeta con el gráfico de lineas de ventas */}
+            {/* Tarjeta con el gráfico de lineas */}
             <Card className="bg-gray-800 border-gray-700">
               
               {/* Encabezado de la tarjeta */}
               <CardHeader>
-                <CardTitle className="text-white">Sales Overview</CardTitle>
-                <CardDescription className="text-gray-400">Monthly sales data</CardDescription>
+                <CardTitle className="text-white text-xl">Proyectos iniciados</CardTitle>
+                <CardDescription className="text-gray-400 text-base">
+                  Se observa la cantidad de proyectos que se inician por mes
+                </CardDescription>
               </CardHeader>
               
               {/* Contenido de la tarjeta */}
               <CardContent>
-                {/* Se agarra de los datos de 'salesData' */}
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={salesData}>
+                <ResponsiveContainer width="100%" height={400}>
+                  <LineChart data={proyectosIniciados}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#4B5563" /> {/* Esto agrega una cuadrícula al gráfico */}
                     <XAxis dataKey="name" stroke="#9CA3AF" /> {/* Esto agrega el eje X con los nombres de los meses */}
                     <YAxis stroke="#9CA3AF" /> {/* Esto agrega el eje Y con color */}
-                    <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none', color: '#F3F4F6' }} /> {/* Esto cambia el estilo del tooltip que es el cuadrito cuando pones el mouse arriba */}
+                    <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none', color: '#F3F4F6', borderRadius: '8px', }} /> {/* Esto cambia el estilo del tooltip que es el cuadrito cuando pones el mouse arriba */}
                     <Legend />  
-                    <Line type="monotone" dataKey="sales" stroke="#3B82F6" strokeWidth={2} dot={{ fill: '#3B82F6' }} /> {/* Esto agrega la línea de ventas con color y grosor */}
+                    <Line type="monotone" dataKey="cantidad" name='Cantidad de proyectos' stroke="#3B82F6" strokeWidth={2} dot={{ fill: '#3B82F6' }} /> {/* Esto agrega la línea de cantidad con color y grosor */}
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
-
             </Card>
 
-            {/* Tarjeta con el gráfico de barras de actividad de usuarios */}
-            <Card className="bg-gray-800 border-gray-700">
-              
-              {/* Encabezado de la tarjeta */}
+            {/* Tarjeta con el gráfico de barras */}
+            <Card className="w-full max-w-3xl bg-gray-800 border-gray-700">
               <CardHeader>
-                <CardTitle className="text-white">User Activity</CardTitle>
-                <CardDescription className="text-gray-400">Weekly active and new users</CardDescription>
+                <CardTitle className="text-white text-xl">Proyectos por estado y ganancia</CardTitle>
+                <CardDescription className="text-gray-400 text-base">
+                  Se observa la cantidad de proyectos por estado y su respectiva ganancia
+                </CardDescription>
               </CardHeader>
-
-              {/* Contenido de la tarjeta */}
               <CardContent>
-                {/* Se agarra de los datos de 'userActivityData' */}
-                <ResponsiveContainer width="100%" height={300}>
-                  <RechartsBarChart data={userActivityData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#4B5563" /> {/* Esto agrega una cuadrícula al gráfico */}
-                    <XAxis dataKey="name" stroke="#9CA3AF" /> {/* Esto agrega el eje X con los nombres de los días */}
-                    <YAxis stroke="#9CA3AF" /> {/* Esto agrega el eje Y con color */}
-                    <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none', color: '#F3F4F6' }} /> {/* Esto cambia el estilo del tooltip que es el cuadrito cuando pones el mouse arriba */}
-                    <Legend /> 
-                    <Bar dataKey="active" fill="#3B82F6" /> {/* Esto agrega la barra de actividad de usuarios activos */}
-                    <Bar dataKey="new" fill="#10B981" /> {/* Esto agrega la barra de actividad de usuarios nuevos */}
-                  </RechartsBarChart> 
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            {/* Tarjeta con el gráfico torta de estado de proyectos */}
-            <Card className="bg-gray-800 border-gray-700">
-              
-              {/* Encabezado de la tarjeta */}
-              <CardHeader>
-                <CardTitle className="text-white">Project Status</CardTitle>
-                <CardDescription className="text-gray-400">Distribution of project statuses</CardDescription>
-              </CardHeader>
-
-              {/* Contenido de la tarjeta */}
-              <CardContent>
-                {/* Se agarra de los datos de 'projectStatusData' */}
-                <ResponsiveContainer width="100%" height={300}>
-                  <RechartsPieChart>
-                    <Pie
-                      data={projectStatusData}
-                      cx="50%" // Esto centra el gráfico en el contenedor
-                      cy="50%" // Esto centra el gráfico en el contenedor
-                      labelLine={false} // Esto quita las líneas que conectan los segmentos con las etiquetas
-                      outerRadius={80} // Esto cambia el tamaño del gráfico
-                      fill="#8884d8" // Esto cambia el color del gráfico
-                      dataKey="value" // Esto determina qué valor se usa para calcular el tamaño de los segmentos
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} // Esto muestra el nombre y el porcentaje de cada segmento
-                    >
-                      {projectStatusData.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))} {/* Esto asigna un color a cada segmento del gráfico, segun los colores definidos arriba */}
-                    </Pie>
-                    <Tooltip  // Configuración del tooltip del grafico
-                      contentStyle={{ 
-                        backgroundColor: '#1F2937', 
-                        border: 'none', 
+                <ResponsiveContainer width="100%" height={400}>
+                  <RechartsBarChart
+                    data={proyectosEstadoGanancia}
+                    margin={{
+                      top: 20,
+                      right: 30,
+                      left: 20,
+                      bottom: 5,
+                    }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#4B5563" />
+                    <XAxis dataKey="name" stroke="#9CA3AF" />
+                    <YAxis yAxisId="left" orientation="left" stroke="#9CA3AF" />
+                    <YAxis yAxisId="right" orientation="right" stroke="#9CA3AF" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: '#1F2937',
+                        border: 'none',
+                        color: '#F3F4F6',
                         borderRadius: '8px',
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                       }}
-                      // Segun el color del fondo, configuro el color del texto
-                      itemStyle={{ color: '#F3F4F6' }}  // Esto cambia el color del texto a blanco
-                      labelStyle={{ color: '#F3F4F6' }} // Esto cambia el color del título del tooltip a blanco
                     />
-                  </RechartsPieChart>
+                    <Legend />
+                    <Bar
+                      dataKey="cantidad"
+                      yAxisId="left"
+                      name="Cantidad de proyectos"
+                      fill="#0088FE" // Color azul para la barra de cantidad
+                    />
+                    <Bar
+                      dataKey="ganancia"
+                      yAxisId="right"
+                      name="Ganancia"
+                      fill="#00C49F" // Color verde para la barra de ganancia
+                    />
+                  </RechartsBarChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
@@ -239,8 +266,8 @@ export function DashboardPage() {
               
               {/* Encabezado de la tarjeta */}
               <CardHeader>
-                <CardTitle className="text-white">Proyectos Activos</CardTitle>
-                <CardDescription className="text-gray-400">Lista de proyectos en curso</CardDescription>
+                <CardTitle className="text-white text-xl">Proyectos activos</CardTitle>
+                <CardDescription className="text-gray-400 text-base">Lista de los proyectos que estan actualmente en proceso</CardDescription>
               </CardHeader>
 
               {/* Contenido de la tarjeta */}
@@ -250,29 +277,36 @@ export function DashboardPage() {
                   <TableHeader>
                     <TableRow className="bg-gray-700">
                       <TableHead className="text-gray-200 text-base font-bold">Nombre</TableHead>
-                      <TableHead className="text-gray-200 text-base font-bold">Fecha Inicio</TableHead>
-                      <TableHead className="text-gray-200 text-base font-bold">Fecha Entrega</TableHead>
+                      <TableHead className="text-gray-200 text-base font-bold">Descripcion</TableHead>
                       <TableHead className="text-gray-200 text-base font-bold">Situación</TableHead>
                       <TableHead className="text-gray-200 text-base font-bold">Cliente</TableHead>
                       <TableHead className="text-gray-200 text-base font-bold">Estado</TableHead>
-                      <TableHead className="text-gray-200 text-base font-bold">Costo</TableHead>
+                      <TableHead className="text-gray-200 text-base font-bold">Ganancia</TableHead>
                     </TableRow>
                   </TableHeader>
 
                   {/* Cuerpo de la tabla */}
                   <TableBody>
                     {/* Mapeamos los datos de 'activeProjects' y generamos filas con la información de cada proyecto */}
-                    {activeProjects.map((project) => (
-                      <TableRow key={project.nombre}>
-                        <TableCell className="text-gray-300 text-base">{project.nombre}</TableCell>
-                        <TableCell className="text-gray-300 text-base">{project.fechaInicio}</TableCell>
-                        <TableCell className="text-gray-300 text-base">{project.fechaEntrega}</TableCell>
-                        <TableCell className="text-gray-300 text-base">{project.situacion}</TableCell>
-                        <TableCell className="text-gray-300 text-base">{project.cliente}</TableCell>
-                        <TableCell className="text-gray-300 text-base">{project.estado}</TableCell>
-                        <TableCell className="text-gray-300 text-base">{project.costo}</TableCell>
+                    {proyectos.map((proyecto) => {
+                      const { color, icon } = getEstadoInfo(proyecto.cod_estado);
+                      const { colorTiempo, iconTiempo } = getTiempoInfo(proyecto.cod_tiempo);
+                      return (
+                        <TableRow key={proyecto.cod_proyecto}>
+                          <TableCell className="text-gray-300 text-base">{proyecto.nom_proyecto}</TableCell>
+                          <TableCell className="text-gray-300 text-base">{proyecto.desc_proyecto}</TableCell>
+                          <TableCell className={`text-base py-2 px-4 flex items-center ${colorTiempo}`}>{iconTiempo}
+                            <span className="ml-2">{proyecto.cod_tiempo}</span>
+                          </TableCell>
+                          <TableCell className="text-gray-300 text-base w-1/15">{proyecto.cod_cliente}</TableCell>
+                          <TableCell className={`text-base py-2 px-4 flex items-center ${color}`}>{icon}
+                            <span className="ml-2">{proyecto.cod_estado}</span>
+                          </TableCell>
+                          <TableCell className="text-gray-300 text-base">$ {proyecto.ganancia}</TableCell>
                       </TableRow>
-                    ))}
+                      )
+                    }
+                    )}
                   </TableBody>
                 </Table>
               </CardContent>
@@ -283,8 +317,8 @@ export function DashboardPage() {
 
               {/* Encabezado de la tarjeta */}
               <CardHeader>
-                <CardTitle className="text-white">Clientes Principales</CardTitle>
-                <CardDescription className="text-gray-400">Información de clientes clave</CardDescription>
+                <CardTitle className="text-white text-xl">Clientes principales</CardTitle>
+                <CardDescription className="text-gray-400 text-base">Información de los cinco clientes principales de la empresa</CardDescription>
               </CardHeader>
 
               {/* Contenido de la tarjeta*/}
@@ -299,17 +333,19 @@ export function DashboardPage() {
                       <TableHead className="text-gray-200 text-base font-bold">Email</TableHead>
                       <TableHead className="text-gray-200 text-base font-bold">Teléfono</TableHead>
                       <TableHead className="text-gray-200 text-base font-bold">Dirección</TableHead>
+                      <TableHead className="text-gray-200 text-base font-bold">Cantidad de proyectos</TableHead>
                     </TableRow>
                   </TableHeader>
                   
                   <TableBody>
-                    {mainClients.map((client) => (
-                      <TableRow key={client.codigo}>
-                        <TableCell className="text-gray-300 text-base">{client.codigo}</TableCell>
-                        <TableCell className="text-gray-300 text-base">{client.nombre}</TableCell>
-                        <TableCell className="text-gray-300 text-base">{client.email}</TableCell>
-                        <TableCell className="text-gray-300 text-base">{client.telefono}</TableCell>
-                        <TableCell className="text-gray-300 text-base">{client.direccion}</TableCell>
+                    {clientes.map((cliente) => (
+                      <TableRow key={cliente.cod_cliente}>
+                        <TableCell className="text-gray-300 text-base">{cliente.cod_cliente}</TableCell>
+                        <TableCell className="text-gray-300 text-base">{cliente.nom_cliente}</TableCell>
+                        <TableCell className="text-gray-300 text-base">{cliente.email_cliente}</TableCell>
+                        <TableCell className="text-gray-300 text-base">{cliente.tel_cliente}</TableCell>
+                        <TableCell className="text-gray-300 text-base">{cliente.direc_cliente}</TableCell>
+                        <TableCell className="text-gray-300 text-base">{cliente.cantidad_proyectos}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

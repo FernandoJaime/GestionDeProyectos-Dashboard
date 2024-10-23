@@ -30,7 +30,7 @@ const userActivityData = [
   { name: 'Sun', active: 3000, new: 900 },
 ]
 
-export function DepartamentosPage() {
+export function EmpleadosDepPage() {
     const location = useLocation(); // Obtenemos la ruta actual para resaltar el elemento activo de la barra lateral
     const [activeItem, setActiveItem] = useState<string>("");
     const [employee, setEmployee] = useState<any>(null);
