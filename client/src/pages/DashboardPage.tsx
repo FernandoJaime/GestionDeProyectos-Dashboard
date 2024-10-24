@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react' // Hook de react para manejar estado
 
 import { Link, useLocation } from 'react-router-dom';  // Importa Link para manejar la navegación
 
-import { Layout, Users, Network, FolderGit2, CircleUserRound, CheckCircle, Clock, XCircle, AlertCircle, ThumbsUp} from 'lucide-react'
+import { Layout, Users, Network, FolderGit2, CircleUserRound, CheckCircle, Clock, XCircle, AlertCircle, ThumbsUp, AlarmClockMinus} from 'lucide-react'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -104,7 +104,7 @@ export function DashboardPage() {
       case "Entregado":
         return { colorTiempo: "text-blue-500", iconTiempo: <CheckCircle className="w-5 h-5" /> };
       case "Atrasado":
-        return { colorTiempo: "text-red-500", iconTiempo: <XCircle className="w-5 h-5" /> };
+        return { colorTiempo: "text-red-500", iconTiempo: <AlarmClockMinus className="w-5 h-5" /> };
       default:
         return { colorTiempo: "text-green-500", iconTiempo: <ThumbsUp className="w-5 h-5" /> };
     }
@@ -209,7 +209,7 @@ export function DashboardPage() {
             </Card>
 
             {/* Tarjeta con el gráfico de barras */}
-            <Card className="w-full max-w-3xl bg-gray-800 border-gray-700">
+            <Card className="w-full bg-gray-800 border-gray-700">
               <CardHeader>
                 <CardTitle className="text-white text-xl">Proyectos por estado y ganancia</CardTitle>
                 <CardDescription className="text-gray-400 text-base">

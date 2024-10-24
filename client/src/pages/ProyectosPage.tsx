@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react' // Hook de react para manejar estados de componentes
 import { Link, useLocation, useNavigate } from 'react-router-dom';  // Importa Link para manejar la navegación
-import { Layout, Users, Network, FolderGit2, CircleUserRound, CheckCircle, Clock, XCircle, AlertCircle, ThumbsUp} from 'lucide-react'
+import { Layout, Users, Network, FolderGit2, CircleUserRound, CheckCircle, Clock, XCircle, AlertCircle, ThumbsUp, AlarmClockMinus} from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from "recharts"
-import { getEmpleadoData, getProyectos} from '../api'; 
+import { getEmpleadoData, getProyectos, getProyectosTerminadosGanancia, getProyectosPorcentajeEstados} from '../api'; 
 
 const sidebarItems = [
   { icon: Layout, label: 'Dashboard', path: '/dashboard'}, // path se usa para navegar a la ruta correspondiente
@@ -13,18 +13,7 @@ const sidebarItems = [
   { icon: Network, label: 'Departamentos', path: '/departamentos'}
 ] // Array de objetos con los íconos y etiquetas de los elementos del menú lateral
 
-const activeProjects = [
-    { nombre: "Proyecto A", fechaInicio: "2023-01-15", fechaEntrega: "2023-06-30", situacion: "En progreso", cliente: "Cliente X", estado: "Activo", costo: 50000 },
-    { nombre: "Proyecto B", fechaInicio: "2023-02-01", fechaEntrega: "2023-08-31", situacion: "Retrasado", cliente: "Cliente Y", estado: "Activo", costo: 75000 },
-    { nombre: "Proyecto C", fechaInicio: "2023-03-10", fechaEntrega: "2023-07-15", situacion: "A tiempo", cliente: "Cliente Z", estado: "Activo", costo: 60000 },
-  ]
-
-const projectStatusData = [
-    { name: 'Completed', value: 30 },
-    { name: 'In Progress', value: 45 },
-    { name: 'Pending', value: 25 },
-]
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
+const COLORS = ['#e8e220', '#00C49F', '#0088FE', '#ff5842']
 
 export function ProyectosPage() {
   
@@ -36,14 +25,10 @@ export function ProyectosPage() {
   const [activeItem, setActiveItem] = useState<string>("");
   const [employee, setEmployee] = useState<any>(null);
   const [proyectos, setProyectos] = useState<any[]>([]);
+  const [proyectosGanancia, setProyectosGanancia] = useState<any[]>([]);
+  const [gananciaTotal, setGananciaTotal] = useState<number>(0);
+  const [porcentajeEstados, setPorcentajeEstados] = useState<any[]>([]);
   const [error, setError] = useState<string>("");
-
-  const projectCostData = activeProjects.map((project) => ({
-    name: project.nombre,
-    costo: project.costo,
-  }))
-
-  const totalCost = activeProjects.reduce((sum, project) => sum + project.costo, 0)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -60,6 +45,20 @@ export function ProyectosPage() {
 
         const proyectosData = await getProyectos();
         setProyectos(proyectosData);
+
+        const proyectosGananciaData = await getProyectosTerminadosGanancia();
+
+        const BarrasData = proyectosGananciaData.map((proyecto: any) => ({
+          name: proyecto.cod_proyecto,
+          ganancia: proyecto.ganancia_proyecto
+        }));
+        setProyectosGanancia(BarrasData);
+
+        const totalGanancia = proyectosGananciaData.reduce((sum: number, proyecto: any) => sum + proyecto.ganancia_proyecto, 0);
+        setGananciaTotal(totalGanancia);
+
+        const porcentajeEstadosData = await getProyectosPorcentajeEstados();
+        setPorcentajeEstados(porcentajeEstadosData);
 
       } catch (error) {
         setError("Error al obtener los datos.");
@@ -101,7 +100,7 @@ export function ProyectosPage() {
       case "Entregado":
         return { colorTiempo: "text-blue-500", iconTiempo: <CheckCircle className="w-5 h-5" /> };
       case "Atrasado":
-        return { colorTiempo: "text-red-500", iconTiempo: <XCircle className="w-5 h-5" /> };
+        return { colorTiempo: "text-red-500", iconTiempo: <AlarmClockMinus className="w-5 h-5" /> };
       default:
         return { colorTiempo: "text-green-500", iconTiempo: <ThumbsUp className="w-5 h-5" /> };
     }
@@ -176,22 +175,22 @@ export function ProyectosPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <Card className="bg-gray-800 border-gray-700">
               <CardHeader>
-                <CardTitle className="text-white">Costo de Proyectos</CardTitle>
-                <CardDescription className="text-gray-400">Distribución de costos por proyecto</CardDescription>
+                <CardTitle className="text-white text-xl">Proyectos entregados</CardTitle>
+                <CardDescription className="text-gray-400 text-base">Ganancia de cada proyecto entregado</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="mb-4 text-center">
-                  <p className="text-sm text-gray-500">Costo Total de Proyectos</p>
-                  <p className="text-2xl text-white font-bold">${totalCost.toLocaleString()}</p>
+                  <p className= "text-gray-500 text-base">Ganancia total</p>
+                  <p className="text-2xl text-white font-bold">${gananciaTotal.toLocaleString()}</p>
                 </div>
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={projectCostData}>
+                  <BarChart data={proyectosGanancia}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis />
                     <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none', color: '#F3F4F6', borderRadius: '8px' }}/>
                     <Legend />
-                    <Bar dataKey="costo" fill="#8884d8" />
+                    <Bar dataKey="ganancia" name="Ganancia" fill="#8884d8" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -199,23 +198,23 @@ export function ProyectosPage() {
 
             <Card className="bg-gray-800 border-gray-700">
               <CardHeader>
-                <CardTitle className="text-white">Estado de Proyectos</CardTitle>
-                <CardDescription className="text-gray-400">Distribución de estados de proyectos</CardDescription>
+                <CardTitle className="text-white text-xl">Estados de los proyectos</CardTitle>
+                <CardDescription className="text-gray-400">Porcentaje de la totalidad de proyectos en cada estado</CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
-                      data={projectStatusData}
+                      data={porcentajeEstados}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
                       outerRadius={100}
                       fill="#8884d8"
                       dataKey="value"
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, value }) => `${name} ${value}%`}
                     >
-                      {projectStatusData.map((_, index) => (
+                      {porcentajeEstados.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
@@ -242,8 +241,8 @@ export function ProyectosPage() {
             <Card className="bg-gray-800 border-gray-700">
               {/* Encabezado de la tarjeta */}
               <CardHeader>
-                <CardTitle className="text-white">Proyectos Activos</CardTitle>
-                <CardDescription className="text-gray-400">Lista de todos los proyectos ordenados por fecha</CardDescription>
+                <CardTitle className="text-white text-xl">Proyectos</CardTitle>
+                <CardDescription className="text-gray-400 text-base">Lista de todos los proyectos ordenados por fecha. Clickea en uno para ver sus tareas.</CardDescription>
               </CardHeader>
               {/* Contenido de la tarjeta */}
               <CardContent>

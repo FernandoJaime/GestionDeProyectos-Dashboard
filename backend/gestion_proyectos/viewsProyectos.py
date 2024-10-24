@@ -174,33 +174,96 @@ def get_proyecto_iniciados(request):
         return Response({'message': "Algo anduvo mal!", 'error': str(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 
+# Obtener todos los proyectos que tienen estado 2 'Completado' y su ganancia 
 @api_view(['GET'])
 # @token_required
 def get_proyecto_terminados_ganancia(request):
     try:
-        # Obtener todos los proyectos menos los cancelados
-        proyectos = Proyecto.objects.filter(cod_estado = 2) # Obtener todos los proyectos con estado 'Completado'
+        # Obtener todos los proyectos completados
+        proyectos = Proyecto.objects.filter(cod_estado = 2) 
         
+        # Obtener la fecha actual (solo la fecha sin la hora)
+        fecha_actual = datetime.now().date()
+
+        tiempo_entregado = Tiempo.objects.get(cod_tiempo = 3)
+
         proyectos_entregados = [] 
-        # Si el proyecto tiene estado "Completado" y fecha_entrega > a la fecha actual, lo modifico a cod_tiempo = 3 "Entregado" y lo agrego a la lista
+        # Si entre todos los proyectos "Completados" su fecha_entrega > a la fecha actual, lo modifico a cod_tiempo = 3 "Entregado" y lo agrego a la lista
         for proyecto in proyectos:
-            if proyecto.fecha_entrega > datetime.now():
-                proyecto.cod_tiempo = 3
+            if proyecto.fecha_entrega <= fecha_actual:
+                proyecto.cod_tiempo = tiempo_entregado
                 proyecto.save() # Guardo el cambio en la base de datos
                 
                 # Agrego el proyecto a la nueva lista
                 proyectos_entregados.append(proyecto)
 
-        lista_proyectos = Response ([
-            {
-                "mes_entrega" : proyecto.fecha_entrega.strftime("%B"), # Obtener el mes de la fecha de entrega
-                # Calcular la ganancia sumando el costo de todas las tareas asociadas al proyecto
-                "ganancia": sum(tarea.costo_tarea for tarea in Tarea.objects.filter(cod_proyecto=proyecto.cod_proyecto)),
-            }
-            for proyecto in proyectos_entregados
-        ])
+        lista_proyectos = Response(
+            [
+                {
+                    "cod_proyecto": proyecto.cod_proyecto,
+                    # Calcular la ganancia sumando el costo de todas las tareas asociadas al proyecto
+                    "ganancia_proyecto": sum(tarea.costo_tarea for tarea in Tarea.objects.filter(cod_proyecto=proyecto.cod_proyecto)),
+                }
+                for proyecto in proyectos_entregados
+            ]
+        )
         
         return lista_proyectos
+    
+    except Exception as error:
+        return Response({'message': "Algo anduvo mal!", 'error': str(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+# Obtener el % de proyectos por estado
+@api_view(['GET'])
+# @token_required
+def get_proyectos_porcentaje_estados(request):
+    try:
+
+        # Total de proyectos
+        total_proyectos = Proyecto.objects.count()
+
+        # Cantidad de proyectos por estado
+        proyectos_enproceso = Proyecto.objects.filter(cod_estado = 1).count() 
+        proyectos_completados = Proyecto.objects.filter(cod_estado = 2).count()
+        proyectos_pendiente = Proyecto.objects.filter(cod_estado = 3).count()
+        proyectos_cancelado = Proyecto.objects.filter(cod_estado = 4).count()
+        
+        porcentaje_enproceso = (proyectos_enproceso / total_proyectos) * 100
+        porcentaje_completados = (proyectos_completados / total_proyectos) * 100
+        porcentaje_pendiente = (proyectos_pendiente / total_proyectos) * 100
+        porcentaje_cancelado = (proyectos_cancelado / total_proyectos) * 100
+
+        return Response ([
+            {"name": "En proceso", "value": porcentaje_enproceso.__round__(0)},
+            {"name": "Completado", "value": porcentaje_completados.__round__(0)},
+            {"name": "Pendiente", "value": porcentaje_pendiente.__round__(0)},
+            {"name": "Cancelado", "value": porcentaje_cancelado.__round__(0)} 
+        ])
+    
+    except Exception as error:
+        return Response({'message': "Algo anduvo mal!", 'error': str(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+# Obtener un proyecto por su id
+@api_view(['GET'])
+# @token_required
+def get_proyecto(request, id):
+    try:
+        proyecto = Proyecto.objects.get(cod_proyecto = id)
+
+        response = Response({
+            "cod_proyecto" : proyecto.cod_proyecto,
+            "nom_proyecto" : proyecto.nom_proyecto,
+            "desc_proyecto" : proyecto.desc_proyecto,
+            "fecha_inicio" : proyecto.fecha_inicio,
+            "fecha_entrega" : proyecto.fecha_entrega,
+            "cod_tiempo" : proyecto.cod_tiempo.desc_tiempo,
+            "cod_cliente" : proyecto.cod_cliente.email_cliente,
+            "cod_estado" : proyecto.cod_estado.desc_estado
+        })
+        
+        return response
     
     except Exception as error:
         return Response({'message': "Algo anduvo mal!", 'error': str(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

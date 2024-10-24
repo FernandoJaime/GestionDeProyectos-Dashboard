@@ -200,3 +200,155 @@ export const getProyectos = async () => {
     throw error;
   }
 };
+
+// Funcion para obtener los proyectos terminados con su gananci y ganancia total para grafico de ProyectosPage
+
+export const getProyectosTerminadosGanancia = async () => {
+  try {
+    const response = await fetch(`${API_URL}proyectos/terminados_ganancia`, {
+      method: 'GET',
+      credentials: 'include', 
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Error obteniendo proyectos terminados y ganancias.');
+    }
+
+    return await response.json();
+    
+  } catch (error) {
+    console.error('Error obteniendo proyectos terminados y ganancias: ', error);
+    throw error;
+  }
+};
+
+
+// Funcion para obtener los porcentajes de proyectos en cada estado para grafico de ProyectosPage
+
+export const getProyectosPorcentajeEstados = async () => {
+  try {
+    const response = await fetch(`${API_URL}proyectos/porcentaje_estados`, {
+      method: 'GET',
+      credentials: 'include', 
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Error obteniendo porcentaje de estados proyectos.');
+    }
+
+    return await response.json();
+    
+  } catch (error) {
+    console.error('Error obteniendo porcentaje de estados proyectos: ', error);
+    throw error;
+  }
+};
+
+
+// Función para obtener los datos del proyecto
+
+export const getProyectoData = async (id: number) => {
+  try {
+    const response = await fetch(`${API_URL}proyecto/${id}`, {
+      method: 'GET',
+      credentials: 'include', 
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Error al obtener los datos del proyecto');
+    }
+
+    return await response.json();
+    
+  } catch (error) {
+    console.error('Error obteniendo los datos del proyecto:', error);
+    throw error;
+  }
+};
+
+// Funcion para obtener las tareas del proyecto 
+
+export const getProyectoTareas = async (id: number) => {
+  try {
+    const response = await fetch(`${API_URL}proyecto/tareas/${id}`, {
+      method: 'GET',
+      credentials: 'include', 
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Error obteniendo las tareas del proyecto');
+    }
+
+    return await response.json();
+    
+  } catch (error) {
+    console.error('Error obteniendo las tareas del proyecto:', error);
+    throw error;
+  }
+};
+
+// Funcion para obtener las tareas del proyecto 
+
+export const getTareasPorcentaje = async (id: number) => {
+  try {
+    const response = await fetch(`${API_URL}tareas/porcentaje_estados/${id}`, {
+      method: 'GET',
+      credentials: 'include', 
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Error obteniendo los porcentajes estados de tareas');
+    }
+
+    return await response.json();
+    
+  } catch (error) {
+    console.error('Error obteniendo los porcentajes estados de tareas:', error);
+    throw error;
+  }
+};
+
+// Funcion para obtener todos los empleados de un departamento
+
+export const getEmpleadosDepartamento = async (id: number) => {
+  try {
+    const response = await fetch(`${API_URL}empleados/departamento/${id}`, {
+      method: 'GET',
+      credentials: 'include', 
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Error obteniendo los empleados del departamento');
+    }
+
+    return await response.json();
+    
+  } catch (error) {
+    console.error('Error obteniendo los empleados del departamento:', error);
+    throw error;
+  }
+};

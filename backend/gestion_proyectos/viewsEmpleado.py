@@ -5,7 +5,7 @@ from rest_framework import status
 from .serializer import EmpleadosSerializer
 import bcrypt
 
-from .models import Empleado
+from .models import Empleado, Departamento
 from .decorators import token_required, token_required_admin # Importo el decorador de validacion de token
 
 # Obtener todos los empleados
@@ -108,6 +108,35 @@ def crear_empleado(request):
         }
 
         return Response(empleado_data, status=status.HTTP_201_CREATED)
+    
+    except Exception as error:
+        return Response({'message': "Algo anduvo mal!", 'error': str(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+# Obtener todos los empleados de un departamento
+@api_view(['GET'])
+# @token_required
+def get_empleados_departamento(request, id):
+    try:
+        empleados = Empleado.objects.filter(cod_departamento = id)
+
+        response = Response([
+            {
+                'cod_empleado': empleado.cod_empleado,
+                'nom_empleado': empleado.nom_empleado,
+                'ape_empleado': empleado.ape_empleado,
+                'fecha_nacimiento': empleado.fecha_nacimiento,
+                'email_empleado': empleado.email_empleado,
+                'tel_empleado': empleado.tel_empleado,
+                'direc_empleado': empleado.direc_empleado,
+                'fecha_creacion': empleado.fecha_creacion,
+                'nom_departamento': empleado.cod_departamento.nom_departamento,
+                'cod_departamento': empleado.cod_departamento.cod_departamento 
+            }
+            for empleado in empleados
+        ])
+        
+        return response
     
     except Exception as error:
         return Response({'message': "Algo anduvo mal!", 'error': str(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
