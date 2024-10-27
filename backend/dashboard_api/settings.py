@@ -86,7 +86,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'DB_Dashboard',  # Nombre de tu base de datos
         'USER': 'root',     # Tu usuario de MySQL
-        'PASSWORD': 'MyFer-SQL25(05)', # Tu contraseña de MySQL
+        'PASSWORD': 'mysql', # Tu contraseña de MySQL
         'HOST': 'localhost',       # Si es remoto, la IP del servidor.
         'PORT': '3306',            # Puerto de MySQL, por defecto es 3306
     }
