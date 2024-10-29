@@ -5,4 +5,6 @@ GET http://127.0.0.1:8000/api/clientes HTTP/1.1
 GET http://127.0.0.1:8000/api/cliente/proyectos/1 HTTP/1.1
 
 
-GET http://127.0.0.1:8000/api/departamentos HTTP/1.1
+GET http://127.0.0.1:8000/api/departamentos/total HTTP/1.1
+GET http://127.0.0.1:8000/api/departamentos/graficos HTTP/1.1
+

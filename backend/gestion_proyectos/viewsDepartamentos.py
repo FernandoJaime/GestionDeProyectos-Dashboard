@@ -2,43 +2,25 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view # Para poder usar el decorador @api_view
 from rest_framework import status
 
-from .models import Departamento, Tarea, Proyecto
+from .models import Departamento, Tarea, Proyecto, Empleado
+
+
 
 @api_view(['GET'])
-def get_departamentos_full(request):
+def get_departamentos_total(request):
     try:
-        departamentos = Departamento.objects.all()  # Obtengo todos los departamentos
+        departamentos = Departamento.objects.all()
         data = []
 
         for departamento in departamentos:
-            tareas = Tarea.objects.filter(cod_departamento=departamento)
-            proyectos_dict = {}
+            empleados_count = Empleado.objects.filter(cod_departamento=departamento).count()
+            proyectos_count = Tarea.objects.filter(cod_departamento=departamento).values('cod_proyecto').distinct().count()
 
-            for tarea in tareas:
-                proyecto = tarea.cod_proyecto # En Django, cuando tienes una clave foránea, puedes acceder directamente a la instancia del modelo relacionado a través de esa clave.
-                if proyecto.cod_proyecto not in proyectos_dict:
-                    proyectos_dict[proyecto.cod_proyecto] = {
-                        'cod_proyecto': proyecto.cod_proyecto,
-                        'nom_proyecto': proyecto.nom_proyecto,
-                        'desc_proyecto': proyecto.desc_proyecto,
-                        'fecha_inicio': proyecto.fecha_inicio,
-                        'fecha_entrega': proyecto.fecha_entrega,
-                        'tareas': []
-                    }
-                if proyecto.cod_proyecto in proyectos_dict:
-                    proyectos_dict[proyecto.cod_proyecto]['tareas'].append({
-                        'cod_tarea': tarea.cod_tarea,
-                        'nom_tarea': tarea.nom_tarea,
-                        'desc_tarea': tarea.desc_tarea,
-                        'costo_tarea': tarea.costo_tarea,
-                        'duracion_tarea': tarea.duracion_tarea,
-                    })
-
-            proyectos_list = list(proyectos_dict.values())
             data.append({
                 'cod_departamento': departamento.cod_departamento,
                 'nom_departamento': departamento.nom_departamento,
-                'proyectos': proyectos_list
+                'empleados_count': empleados_count,
+                'proyectos_count': proyectos_count
             })
 
         return Response(data, status=status.HTTP_200_OK)
@@ -46,3 +28,43 @@ def get_departamentos_full(request):
     except Exception as error:
         return Response({'message': "Algo anduvo mal!", 'error': str(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@api_view(['GET'])
+def get_departamentos_graficos(request):
+    try:
+        departamentos = Departamento.objects.all()
+        radar_data = []  # Para el radar chart
+        scatter_data = []  # Para el scatter chart
+
+        for departamento in departamentos:
+            tareas = Tarea.objects.filter(cod_departamento=departamento.cod_departamento)
+            proyectos_ids = tareas.values_list('cod_proyecto', flat=True).distinct()
+            proyectos = Proyecto.objects.filter(cod_proyecto__in=proyectos_ids)
+
+            costo_total = sum(tarea.costo_tarea for tarea in tareas)
+            duracion_total = sum(tarea.duracion_tarea for tarea in tareas)
+            num_proyectos = proyectos.count() 
+            num_tareas = tareas.count()
+
+            # Datos para el radar chart
+            radar_data.append({
+                'departamento': departamento.nom_departamento,
+                'costo_total': costo_total,
+                'duracion_total': duracion_total,
+                'num_proyectos': num_proyectos,
+                'num_tareas': num_tareas
+            })
+
+            # Datos para el scatter chart (puntos en el plano X, Y)
+            scatter_data.append({
+                'departamento': departamento.nom_departamento,
+                'x': costo_total,  # Eje X
+                'y': duracion_total  # Eje Y
+            })
+
+        return Response({
+            'radar_data': radar_data,
+            'scatter_data': scatter_data
+        }, status=status.HTTP_200_OK)
+
+    except Exception as error:
+        return Response({'message': "Algo anduvo mal!", 'error': str(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

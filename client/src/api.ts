@@ -417,3 +417,44 @@ export const getProyectosCliente = async (clientId: string) => {
     throw error;
   }
 };
+
+export const getDepartamentosGraficos = async () => {
+  try {
+    const response = await fetch(`${API_URL}departamentos/graficos`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Error obteniendo los gráficos de departamentos');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error obteniendo los gráficos de departamentos:', error);
+    throw error;
+  }
+};
+export const getDepartamentosTotal = async () => {
+  try {
+    const response = await fetch(`${API_URL}departamentos/total`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Error obteniendo el total de departamentos');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error obteniendo el total de departamentos:', error);
+    throw error;
+  }
+};

@@ -5,7 +5,7 @@ from .viewsEmpleado import get_empleados, get_empleado, crear_empleado, get_empl
 from .viewsTareas import get_tareas_emp, get_tareas_proyecto, get_tareas_porcentaje_estados
 from .viewsProyectos import get_proyectos_enproceso, get_proyectos_estados_ganancia, get_proyecto_iniciados, get_proyectos, get_proyecto_terminados_ganancia, get_proyectos_porcentaje_estados, get_proyecto
 from .viewsClientes import get_clientes_principales, get_clientes,get_cliente_proyectos
-from .viewsDepartamentos import get_departamentos_full
+from .viewsDepartamentos import get_departamentos_total, get_departamentos_graficos
 urlpatterns = [
 # Cliente
 path('clientes/principales', get_clientes_principales, name='clientes_principales'),
@@ -37,7 +37,8 @@ path('proyecto/<int:id>', get_proyecto, name='proyecto'),
 path('proyecto/tareas/<int:id>', get_tareas_proyecto, name='tareas_proyecto'),
 
 # Departamento
-path('departamentos', get_departamentos_full, name='departamentos'),
+path('departamentos/total', get_departamentos_total, name='departamentos'),
+path('departamentos/graficos', get_departamentos_graficos, name='departamentos_graficos'),
 # Tareas
 path('tareas/porcentaje_estados/<int:id>', get_tareas_porcentaje_estados, name='tareas_porcentaje_estados')
 ]
