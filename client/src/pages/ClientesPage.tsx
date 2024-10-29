@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { Layout, Users, Network, CircleUserRound, FolderGit2 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
+import { Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 import { getEmpleadoData, getClientes, getProyectosCliente } from '../api'; 
 
 const sidebarItems = [
@@ -13,8 +13,7 @@ const sidebarItems = [
   { icon: Network, label: 'Departamentos', path: '/departamentos'}
 ] // Array de objetos con los íconos y etiquetas de los elementos del menú lateral
 
-
-const COLORS = ['#00C49F', '#FFBB28', '#FF0000', '#0000FF']; // Colores para el gráfico de torta
+const COLORS = ['#00C49F', '#e8e220', '#ff5842', '#0088FE']; // Colores para el gráfico de torta
 
 export function ClientesPage() {
   const location = useLocation(); // Obtenemos la ruta actual para resaltar el elemento activo de la barra lateral
