@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Layout, Users, Network, CircleUserRound, FolderGit2 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 import { getEmpleadoData, getClientes, getProyectosCliente } from '../api'; 
 
 const sidebarItems = [
@@ -14,15 +14,7 @@ const sidebarItems = [
 ] // Array de objetos con los íconos y etiquetas de los elementos del menú lateral
 
 
-const userActivityData = [
-  { name: 'Mon', active: 3000, new: 1400 },
-  { name: 'Tue', active: 3500, new: 1200 },
-  { name: 'Wed', active: 4000, new: 1600 },
-  { name: 'Thu', active: 3700, new: 1300 },
-  { name: 'Fri', active: 3900, new: 1500 },
-  { name: 'Sat', active: 3300, new: 1000 },
-  { name: 'Sun', active: 3000, new: 900 },
-]
+const COLORS = ['#00C49F', '#FFBB28', '#FF0000', '#0000FF']; // Colores para el gráfico de torta
 
 export function ClientesPage() {
   const location = useLocation(); // Obtenemos la ruta actual para resaltar el elemento activo de la barra lateral
@@ -91,97 +83,118 @@ export function ClientesPage() {
   }, []);
 
 
+  // Datos para el gráfico de torta
+  const pieChartData = useMemo(() => {
+    const counts = { completado: 0, proceso: 0, cancelado: 0, pendiente: 0 };
+    filteredProyectos.forEach(proyecto => {
+      if (proyecto.estado === 'Completado') counts.completado++;
+      else if (proyecto.estado === 'En Proceso') counts.proceso++;
+      else if (proyecto.estado === 'Cancelado') counts.cancelado++;
+      else if (proyecto.estado === 'Pendiente') counts.pendiente++;
+    });
+    return [
+      { name: 'Completado', value: counts.completado },
+      { name: 'En Proceso', value: counts.proceso },
+      { name: 'Cancelado', value: counts.cancelado },
+      { name: 'Pendiente', value: counts.pendiente }
+    ];
+  }, [filteredProyectos]);
 
   if (error) {
     return <div>Error: {error}</div>;
   }
-      
-  // Verifico que 'employee' no sea null
+
   const userLogin = employee
-  ? [
-      {
-        Icon: CircleUserRound,
-        name: `${employee.nom_empleado} ${employee.ape_empleado}`,
-      },
-    ]
-  : []; // Si es null devuelvo un array vacío
+    ? [{ Icon: CircleUserRound, name: `${employee.nom_empleado} ${employee.ape_empleado}` }]
+    : [];
 
   return (
     <div className="flex h-screen bg-gray-900 text-gray-100">
       <aside className="w-64 bg-gray-800 shadow-md">
         <div className="p-3">
-          <p className='p-0.5 text-gray-800'>pa que coincida</p>
+          <p className="p-0.5 text-gray-800">pa que coincida</p>
         </div>
-        {/* Mapeamos los elementos de arriba y generamos botones. El botón seleccionado se resalta con un fondo más oscuro */}
         <nav className="mt-4">
-                {sidebarItems.map((item) => (
-                        item.path ? ( // Solo agrega el Link si el elemento tiene un 'path'
-                            <Link to={item.path} key={item.label}>
-                                <button
-                                className={`flex items-center w-full px-4 py-2 text-left ${
-                                    location.pathname === item.path // Comparamos con la ruta actual
-                                    ? 'bg-gray-700 text-white' // Si coincide con la ruta actual, lo resaltamos
-                                    : 'text-gray-400 hover:bg-gray-700 hover:text-white'
-                                }`}
-                                onClick={() => setActiveItem(item.label)}
-                                >
-                                <item.icon className="w-5 h-5 mr-3" />
-                                {item.label}
-                                </button>
-                            </Link>
-                    ) : ( // Si no tiene 'path', solo renderizo el boton sin link
-                        <button
-                            key={item.label}
-                            className={`flex items-center w-full px-4 py-2 text-left ${
-                            activeItem === item.label ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white'
-                            }`}
-                            onClick={() => setActiveItem(item.label)}
-                        >
-                            <item.icon className="w-5 h-5 mr-3" />
-                            {item.label}
-                        </button>
-                    )
-                ))}
-            </nav>
+          {sidebarItems.map((item) =>
+            item.path ? (
+              <Link to={item.path} key={item.label}>
+                <button
+                  className={`flex items-center w-full px-4 py-2 text-left ${
+                    location.pathname === item.path
+                      ? 'bg-gray-700 text-white'
+                      : 'text-gray-400 hover:bg-gray-700 hover:text-white'
+                  }`}
+                  onClick={() => setActiveItem(item.label)}
+                >
+                  <item.icon className="w-5 h-5 mr-3" />
+                  {item.label}
+                </button>
+              </Link>
+            ) : (
+              <button
+                key={item.label}
+                className={`flex items-center w-full px-4 py-2 text-left ${
+                  activeItem === item.label ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white'
+                }`}
+                onClick={() => setActiveItem(item.label)}
+              >
+                <item.icon className="w-5 h-5 mr-3" />
+                {item.label}
+              </button>
+            )
+          )}
+        </nav>
       </aside>
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="flex items-center justify-between px-6 py-4 bg-gray-800 shadow">
           <h2 className="text-3xl font-semibold text-white whitespace-nowrap">Gestión de proyectos</h2>
           <div className="flex items-center">
-            <div className="flex items-center space-x-2">
-              {userLogin.map((user, index) => (
-                <div key={index} className="flex items-center space-x-1">
-                  <user.Icon className="w-6 h-6 text-gray-200" />
-                  <span className="text-gray-200">{user.name}</span>
-                </div>
-              ))}
-            </div>
+            {userLogin.map((user, index) => (
+              <div key={index} className="flex items-center space-x-1">
+                <user.Icon className="w-6 h-6 text-gray-200" />
+                <span className="text-gray-200">{user.name}</span>
+              </div>
+            ))}
           </div>
         </header>
 
         <main className="flex-1 overflow-y-auto p-6 bg-gray-900">
+          {/* Gráfico de Torta */}
+          {selectedClient ? (
+
           <div className="mb-6">
             <Card className="bg-gray-800 border-gray-700">
               <CardHeader>
-                <CardTitle className="text-white">User Activity</CardTitle>
-                <CardDescription className="text-gray-400">Weekly active and new users</CardDescription>
+                <CardTitle className="text-white">Estado de Proyectos del Cliente</CardTitle>
+                <CardDescription className="text-gray-400">Proyectos Completados, En Proceso , Pendientes y Cancelados</CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <RechartsBarChart data={userActivityData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#4B5563" />
-                    <XAxis dataKey="name" stroke="#9CA3AF" />
-                    <YAxis stroke="#9CA3AF" />
-                    <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none', color: '#F3F4F6', borderRadius: '8px' }} />
-                    <Legend />
-                    <Bar dataKey="active" fill="#3B82F6" />
-                    <Bar dataKey="new" fill="#10B981" />
-                  </RechartsBarChart>
+                  <PieChart>
+                    <Pie
+                      data={pieChartData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={150}
+                      fill="#8884d8"
+                      
+                    >
+                      {pieChartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
           </div>
+         ) : (
+          <div className="mb-6 text-gray-400">Seleccione un cliente para ver el estado de sus proyectos.</div>
+        )}
 
           <div className="grid grid-cols-1 gap-6">
             <Card className="bg-gray-800 border-gray-700">
@@ -247,8 +260,8 @@ export function ClientesPage() {
                         <TableCell className="text-gray-300 text-base">{proyecto.desc_proyecto}</TableCell>
                         <TableCell className="text-gray-300 text-base">{proyecto.fecha_inicio}</TableCell>
                         <TableCell className="text-gray-300 text-base">{proyecto.fecha_entrega}</TableCell>
-                        <TableCell className="text-gray-300 text-base">{proyecto.tiempo}</TableCell>
-                        <TableCell className="text-gray-300 text-base">{proyecto.estado}</TableCell>
+                        <TableCell className={`text-gray-300 text-base ${proyecto.tiempo === 'Atrasado' ? 'text-red-500' : proyecto.tiempo === 'A tiempo' ? 'text-green-500' : proyecto.tiempo === 'Entregado' ? 'text-blue-500' : ''}`}>{proyecto.tiempo}</TableCell>
+                        <TableCell className={`text-gray-300 text-base ${proyecto.estado === 'Cancelado' ? 'text-red-500' : proyecto.estado === 'Completado' ? 'text-green-500' : proyecto.estado === 'En Proceso' ? 'text-yellow-500' : proyecto.estado === 'Pendiente' ? 'text-blue-500' : ''}`}>{proyecto.estado}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
