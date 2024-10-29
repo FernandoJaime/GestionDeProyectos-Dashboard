@@ -4,7 +4,7 @@ import { Layout, Users, Network, CircleUserRound, FolderGit2 } from 'lucide-reac
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { getEmpleadoData } from '../api'; 
+import { getEmpleadoData, getClientes, getProyectosCliente } from '../api'; 
 
 const sidebarItems = [
   { icon: Layout, label: 'Dashboard', path: '/dashboard'}, // path se usa para navegar a la ruta correspondiente
@@ -13,18 +13,6 @@ const sidebarItems = [
   { icon: Network, label: 'Departamentos', path: '/departamentos'}
 ] // Array de objetos con los íconos y etiquetas de los elementos del menú lateral
 
-const clientesData = [
-  { cod_cliente: 'C001', nom_cliente: 'Empresa ABC', email_cliente: 'contacto@abc.com', tel_cliente: '+1234567890', direc_cliente: 'Calle Principal 123, Ciudad' },
-  { cod_cliente: 'C002', nom_cliente: 'Corporación XYZ', email_cliente: 'info@xyz.com', tel_cliente: '+0987654321', direc_cliente: 'Avenida Central 456, Metrópolis' },
-  { cod_cliente: 'C003', nom_cliente: 'Industrias 123', email_cliente: 'ventas@123.com', tel_cliente: '+1122334455', direc_cliente: 'Plaza Mayor 789, Villa' },
-]
-
-const proyectosData = [
-  { cod_proyecto: 'P001', nom_proyecto: 'Proyecto A', desc_proyecto: 'Desarrollo de software', fecha_inicio: '2023-01-15', fecha_entrega: '2023-06-30', cod_tiempo: 'T001', cod_cliente: 'C001', cod_estado: 'E001' },
-  { cod_proyecto: 'P002', nom_proyecto: 'Proyecto B', desc_proyecto: 'Implementación de red', fecha_inicio: '2023-02-01', fecha_entrega: '2023-08-31', cod_tiempo: 'T002', cod_cliente: 'C001', cod_estado: 'E002' },
-  { cod_proyecto: 'P003', nom_proyecto: 'Proyecto C', desc_proyecto: 'Consultoría de procesos', fecha_inicio: '2023-03-10', fecha_entrega: '2023-07-15', cod_tiempo: 'T003', cod_cliente: 'C002', cod_estado: 'E001' },
-  { cod_proyecto: 'P004', nom_proyecto: 'Proyecto D', desc_proyecto: 'Desarrollo de app móvil', fecha_inicio: '2023-04-01', fecha_entrega: '2023-09-30', cod_tiempo: 'T004', cod_cliente: 'C003', cod_estado: 'E003' },
-]
 
 const userActivityData = [
   { name: 'Mon', active: 3000, new: 1400 },
@@ -40,13 +28,48 @@ export function ClientesPage() {
   const location = useLocation(); // Obtenemos la ruta actual para resaltar el elemento activo de la barra lateral
   const [activeItem, setActiveItem] = useState<string>("");
   const [selectedClient, setSelectedClient] = useState<string | null>(null)
+  const [clientesData, setClientesData] = useState<any[]>([]);
   const [employee, setEmployee] = useState<any>(null);
+  const [proyectosData, setProyectosData] = useState<any[]>([]);
   const [error, setError] = useState<string>("");
 
 
   const filteredProyectos = selectedClient
-    ? proyectosData.filter(proyecto => proyecto.cod_cliente === selectedClient)
-    : []
+  ? proyectosData.filter((proyecto) => {
+      console.log(`Comparando proyecto cod_cliente ${proyecto.cod_cliente} con selectedClient ${selectedClient}`);
+      return proyecto.cod_cliente === selectedClient;
+    })
+  : [];
+
+  useEffect(() => {
+    const fetchClientes = async () => {
+      try {
+        const data = await getClientes();
+        setClientesData(data);
+      } catch (error) {
+        setError("Error al obtener los datos de clientes.");
+        console.error(error);
+      }
+    };
+    fetchClientes();
+  }, []);
+
+  const fetchProyectos = async (clientId: string) => {
+    try {
+      const data = await getProyectosCliente(clientId);
+      setProyectosData(data);
+      console.log(data);
+    } catch (error) {
+      setError("Error al obtener los datos de proyectos.");
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedClient) {
+      fetchProyectos(selectedClient);
+    }
+  }, [selectedClient]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,6 +89,8 @@ export function ClientesPage() {
     };
     fetchData();
   }, []);
+
+
 
   if (error) {
     return <div>Error: {error}</div>;
@@ -210,9 +235,8 @@ export function ClientesPage() {
                       <TableHead className="text-gray-200 text-base font-bold">Descripción</TableHead>
                       <TableHead className="text-gray-200 text-base font-bold">Fecha Inicio</TableHead>
                       <TableHead className="text-gray-200 text-base font-bold">Fecha Entrega</TableHead>
-                      <TableHead className="text-gray-200 text-base font-bold">Código Tiempo</TableHead>
-                      <TableHead className="text-gray-200 text-base font-bold">Código Cliente</TableHead>
-                      <TableHead className="text-gray-200 text-base font-bold">Código Estado</TableHead>
+                      <TableHead className="text-gray-200 text-base font-bold">Tiempo</TableHead>
+                      <TableHead className="text-gray-200 text-base font-bold">Estado</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -223,9 +247,8 @@ export function ClientesPage() {
                         <TableCell className="text-gray-300 text-base">{proyecto.desc_proyecto}</TableCell>
                         <TableCell className="text-gray-300 text-base">{proyecto.fecha_inicio}</TableCell>
                         <TableCell className="text-gray-300 text-base">{proyecto.fecha_entrega}</TableCell>
-                        <TableCell className="text-gray-300 text-base">{proyecto.cod_tiempo}</TableCell>
-                        <TableCell className="text-gray-300 text-base">{proyecto.cod_cliente}</TableCell>
-                        <TableCell className="text-gray-300 text-base">{proyecto.cod_estado}</TableCell>
+                        <TableCell className="text-gray-300 text-base">{proyecto.tiempo}</TableCell>
+                        <TableCell className="text-gray-300 text-base">{proyecto.estado}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

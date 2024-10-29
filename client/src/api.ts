@@ -352,3 +352,68 @@ export const getEmpleadosDepartamento = async (id: number) => {
     throw error;
   }
 };
+
+export const getDepartamentos = async () => {
+  try {
+    const response = await fetch(`${API_URL}departamentos`, {
+      method: 'GET',
+      credentials: 'include', 
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Error obteniendo los departamentos');
+    }
+
+    return await response.json();
+    
+  } catch (error) {
+    console.error('Error obteniendo los departamentos:', error);
+    throw error;
+  }
+};
+
+export const getClientes = async () => {
+  try {
+    const response = await fetch(`${API_URL}clientes`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Error obteniendo los clientes');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error obteniendo los clientes:', error);
+    throw error;
+  }
+};
+
+export const getProyectosCliente = async (clientId: string) => {
+  try {
+    const response = await fetch(`${API_URL}cliente/proyectos/${clientId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Error obteniendo los proyectos');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error obteniendo los proyectos:', error);
+    throw error;
+  }
+};

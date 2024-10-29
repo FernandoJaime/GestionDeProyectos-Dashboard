@@ -72,8 +72,10 @@ def get_cliente_proyectos(request, id):
     
         for proyecto in proyectos:
             proyecto_data = {
+                "cod_cliente": proyecto.cod_cliente.cod_cliente,
                 "cod_proyecto": proyecto.cod_proyecto,
                 "nom_proyecto": proyecto.nom_proyecto,
+                "desc_proyecto": proyecto.desc_proyecto,
                 "fecha_inicio": proyecto.fecha_inicio,
                 "fecha_entrega": proyecto.fecha_entrega,
                 "estado": proyecto.cod_estado.desc_estado,
